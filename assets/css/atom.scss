@@ -1,0 +1,54 @@
+/* atom */
+
+/* ------------------------------
+border */
+$borderDirectons: (
+    '',
+    '-top',
+    '-bottom',
+);
+@each $var in $borderDirectons {
+    .border#{$var} {
+        border#{$var}: 1px solid var(--color-border);
+    }
+}
+
+/* ------------------------------
+Color */
+$varColors: (
+    "theme",
+    "green",
+    "purple",
+    "red",
+    "white",
+    "yellow",
+    "text",
+    "text-dark",
+    "text-light",
+    "text-lighter",
+);
+@each $var in $varColors {
+    .rt-color-#{$var} {
+        color: var(--color-#{$var});
+    }
+    .\!rt-color-#{$var} {
+        color: var(--color-#{$var}) !important;
+    }
+}
+
+$varColors: (
+    "theme",
+    "theme-light",
+    "green",
+    "purple",
+    "red",
+    "white",
+    "yellow",
+    "bg",
+    "bg-dark",
+);
+@each $varColor in $varColors {
+    .rt-bg-color-#{$varColor} {
+        background-color: var(--color-#{$varColor});
+    }
+}

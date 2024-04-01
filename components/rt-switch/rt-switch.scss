@@ -1,0 +1,42 @@
+.rt-switch {
+    --switch-ball-size: 1.5rem;
+
+    display: inline-block;
+    label {
+        position: relative;
+    }
+    .switch-input {
+        display: none;
+        &:checked + .switch-operation {
+            background-color: var(--color-theme);
+            &::after {
+                left: calc(50%);
+            }
+        }
+        &:disabled + .switch-operation {
+            background-color: var(--color-theme-light);
+            cursor: not-allowed;
+        }
+    }
+    .switch-operation {
+        position: relative;
+        width: calc(var(--switch-ball-size) * 2 + 2px);
+        height: calc(var(--switch-ball-size) + 2px);
+        border-radius: 9999px;
+        background-color: #D3D4D5;
+        cursor: pointer;
+        &::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 1px;
+            display: inline-block;
+            width: var(--switch-ball-size);
+            height: var(--switch-ball-size);
+            border-radius: 50%;
+            background-color: #ffffff;
+            transform: translateY(-50%);
+            transition: left 0.25s;
+        }
+    }
+}

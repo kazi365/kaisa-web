@@ -1,0 +1,34 @@
+/* ------------------------------
+Alert */
+.def-alert {
+    --alert-bg-color: var(--s-color-bg-darker);
+
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    line-height: 1.5;
+    background-color: var(--alert-bg-color);
+
+    $types: (
+        "positive": "green",
+    );
+    @each $type, $color in $types {
+        &[type=#{$type}] {
+            --alert-bg-color: var(--s-color-#{$color}-light);
+        }
+    }
+}
+
+.def-form-item {
+    .required {
+        &::before {
+            content: "* ";
+            color: var(--color-red);
+        }
+    }
+}
+
+.def-info-item {
+    .info-label {
+        color: var(--color-text-light);
+    }
+}

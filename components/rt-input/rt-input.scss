@@ -1,0 +1,10 @@
+.rt-input {
+    box-sizing: border-box;
+    padding: 0.5rem 1rem;
+    border: 1px solid #EBEDF0;
+    border-radius: 0.25rem;
+    outline: none;
+    &:focus {
+        border-color: var(--color-theme);
+    }
+}

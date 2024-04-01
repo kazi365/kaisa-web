@@ -1,0 +1,13 @@
+{
+  // https://nuxt.com/docs/guide/concepts/typescript
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./*"],
+      "~/*": ["./*"],
+      "~types/*": ["src/types/*"],
+      "~utils/*": ["src/utils/*"]
+    },
+    "types": ["vite/client"]
+  },
+  "extends": "./.nuxt/tsconfig.json"
+}

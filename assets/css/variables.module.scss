@@ -1,0 +1,31 @@
+/* variables.module */
+
+/* ------------------------------
+color */
+$--color-theme: #0C5CFF;
+$--color-green: #2DA641;
+$--color-purple: #673AB7;
+$--color-red: #F54336;
+$--color-yellow: #FA6401;
+
+/* ------------------------------
+container */
+$--container-xs: 480px;
+$--container-sm: 640px;
+$--container-md: 865px;
+$--container-lg: 1024px;
+$--container-xl: 1280px;
+
+:export {
+  colorTheme: $--color-theme;
+  colorGreen: $--color-green;
+  colorPurple: $--color-purple;
+  colorRed: $--color-red;
+  colorYellow: $--color-yellow;
+
+  containerXs: $--container-xs;
+  containerSm: $--container-sm;
+  containerMd: $--container-md;
+  containerLg: $--container-lg;
+  containerXl: $--container-xl;
+}
