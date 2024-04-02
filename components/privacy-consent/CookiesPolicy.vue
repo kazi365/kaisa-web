@@ -12,8 +12,6 @@ export default defineComponent({
 
         const rejectAll = () => {
             window.localStorage.setItem(COOKIES_CONSENT_KEY, '0')
-            const gtm = useGtm()
-            gtm?.enable(false)
             close()
         }
 

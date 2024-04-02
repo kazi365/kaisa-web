@@ -34,7 +34,7 @@ export default defineNuxtConfig({
         '@nuxtjs/algolia',
         '@unocss/nuxt',
         '@vueuse/nuxt',
-        '@zadigetvoltaire/nuxt-gtm',
+        'nuxt-quasar-ui',
         'nuxt-icons',
     ],
     nitro: {
@@ -46,9 +46,7 @@ export default defineNuxtConfig({
         public: envVars,
     },
     sourcemap: false,
-
-    // module extend
-    gtm: {
-        id: envVars.NUXT_GOOGLE_TAG_MANAGER_CONTAINER_ID,
+    quasar: {
+        plugins: ['Notify'],
     },
 })

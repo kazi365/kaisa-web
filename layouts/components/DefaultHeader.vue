@@ -18,10 +18,9 @@ const toggleAside = () => {
 
 const menus = ref<TMenu[]>([
     { id: 'news', label: '新闻', path: '/news' },
-    { id: 'events', label: '赛事', path: '/pricing' },
-    { id: 'results', label: '比赛结果', path: '/pricing' },
-    { id: 'teams', label: '队伍', path: '/pricing' },
-    { id: 'players', label: '球员', path: '/pricing' },
+    { id: 'events', label: '赛事', path: '/game' },
+    { id: 'teams', label: '队伍', path: '/team' },
+    { id: 'players', label: '球员', path: '/athlete' },
 ])
 
 const toIndexSearch = () => {

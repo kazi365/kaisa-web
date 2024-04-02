@@ -9,28 +9,7 @@ const cpu_layout = computed(() => {
   return 'default-layout';
 })
 
-const gtm = useGtm()
-const privacyConsentCache = useLocalStorage(COOKIES_CONSENT_KEY, '');
-(() => {
-  if (privacyConsentCache.value === '0') {
-    gtm?.enable(false)
-    return;
-  }
-  try {
-    const cacheJson = JSON.parse(privacyConsentCache.value)
-    if (!cacheJson.pref) {
-      gtm?.enable(false)
-      return;
-    }
-  } catch (error) {
-    // 
-  }
-})();
-onMounted(() => {
-  if (!privacyConsentCache.value) {
-    $privacyConsent.createCookiesPolicy()
-  }
-})
+
 </script>
 
 <template>

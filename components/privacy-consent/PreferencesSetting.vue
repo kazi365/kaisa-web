@@ -2,7 +2,7 @@
 import { defineComponent, reactive } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 import { COOKIES_CONSENT_KEY, $privacyConsent } from './index'
-import RtSwitch from '@/components/rt-switch/RtSwitch.vue'
+import RtSwitch from '@/components/switch/RtSwitch.vue'
 
 export default defineComponent({
     name: 'PreferencesSetting',
@@ -20,10 +20,6 @@ export default defineComponent({
 
         const save = () => {
             window.localStorage.setItem(COOKIES_CONSENT_KEY, JSON.stringify(formData))
-            if (!formData.pref) {
-                const gtm = useGtm()
-                gtm?.enable(false)
-            }
             close()
         }
 

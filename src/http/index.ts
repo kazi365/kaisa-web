@@ -1,29 +1,22 @@
 import type { UseFetchOptions } from 'nuxt/dist/app'
+import { useNotify } from '@/composables/use-notify/useNotify'
+
+const { notify } = useNotify()
+
+export declare interface IHttpExtendConfig {
+    notifyOnError?: boolean; // default true
+}
 
 function requestInterceptors(requestConfig: any) {
     const { options, request } = requestConfig
     options.headers ||= {}
-    // timestamp
-    if (!options.headers['RT-Timestamp']) {
-        const timestamp = Date.now().toString()
-        options.headers['RT-Timestamp'] = timestamp
-    }
-    // requestId
-    if (!options.headers['RT-RequestID']) {
-        let requestId: string
-        try {
-            requestId = self.crypto.randomUUID()
-        } catch (error) {
-            requestId = request.replace(/[^\w]/gi, '') + options.headers['RT-Timestamp']
-        }
-        options.headers['RT-RequestID'] ||= requestId
-    }
     return requestConfig;
 }
 
 export async function commonRequest<R>(
     url: string,
     config: UseFetchOptions<R> = {},
+    customConfig: IHttpExtendConfig = {}
 ) {
     const runtimeConfig = useRuntimeConfig()
     try {
@@ -34,13 +27,27 @@ export async function commonRequest<R>(
             ...config,
             onRequest: (requestConfig) => requestInterceptors(requestConfig),
         })
-        if (res.error.value) {
-            throw res.error.value.message;
+
+        const data =  JSON.parse(JSON.stringify(res.data.value))
+        if (data?.success === false) {
+            throw data.msg;
         }
-        return res.data;
-    } catch (error) {
+        return Promise.resolve(data);
+    } catch (error: any) {
+        const { notifyOnError = true } = customConfig
+        error && notifyOnError && notify({ msg: JSON.stringify(error?.message ?? error), type: 'negative' });
         return Promise.reject(error);
     }
+}
+
+export function commonGet<R = any, P = Record<string, any>>(
+        url: string,
+        params: P,
+        config: UseFetchOptions<R> = {},
+) {
+    config.method = 'get'
+    config.params = params || config.params
+    return commonRequest<R>(url, config);
 }
 
 export function commonPostJson<R = any, D = any>(

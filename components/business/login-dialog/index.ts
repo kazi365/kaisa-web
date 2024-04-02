@@ -12,7 +12,7 @@ export const $loginDialog = {
         const mountEl = document.createElement('div')
         document.body.appendChild(mountEl)
         const instRef = app.mount(mountEl) as InstanceType<typeof LoginDialog>
-        dialogMapStore.set('contact', { app, instRef })
+        dialogMapStore.set('login', { app, instRef })
         nextTick(() => {
             instRef.open()
         })
@@ -23,6 +23,6 @@ export const $loginDialog = {
         if (!dialog) return;
         dialog.app.unmount()
         document.body.removeChild(dialog.app._container!)
-        dialogMapStore.delete('contact')
+        dialogMapStore.delete('login')
     },
 }

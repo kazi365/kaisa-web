@@ -17,6 +17,7 @@
     "@hubspot/api-client": "^9.1.1",
     "@nuxtjs/algolia": "^1.10.1",
     "@popperjs/core": "^2.11.6",
+    "@quasar/extras": "^1.16.11",
     "bootstrap": "^5.2.3",
     "nuxt-icons": "^3.1.0",
     "web-piece": "git+http://gitlab.redtea.io/third/web-piece.git#qa"
@@ -27,8 +28,8 @@
     "@unocss/nuxt": "^0.58.0",
     "@vueuse/core": "^9.13.0",
     "@vueuse/nuxt": "^9.13.0",
-    "@zadigetvoltaire/nuxt-gtm": "^0.0.13",
     "nuxt": "^3.2.2",
+    "nuxt-quasar-ui": "^2.0.8",
     "sass": "^1.58.3"
   }
 }

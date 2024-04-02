@@ -24,7 +24,6 @@ export default defineComponent({
         },
     },
     setup(props, { expose }) {
-        const gtm = useGtm()
 
         const visible = ref(false)
         const open = () => {
@@ -33,7 +32,6 @@ export default defineComponent({
         const close = () => {
             visible.value = false
             setTimeout(() => {
-                $loginDialog.unmount()
             }, 500);
         }
 
