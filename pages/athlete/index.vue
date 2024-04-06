@@ -4,7 +4,7 @@
 
 <template>
     <div>
-        <h1>运动员列表</h1>
+        <v-btn rounded="xs" size="x-large" block>Rounded xs</v-btn>
     </div>
 </template>
 

@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-import HomeSimlessly from '@/components/business/section/HomeSimlessly.vue'
-import WhyUs from '@/components/business/section/WhyUs.vue'
-import Truster from '@/components/business/section/Truster.vue'
-
 
 const { push } = useRouter()
 
@@ -23,9 +19,6 @@ push('/news')
                 <div class="after-bball"></div>
             </div>
         </section>
-        <HomeSimlessly />
-        <WhyUs />
-        <Truster />
     </article>
 </template>
 

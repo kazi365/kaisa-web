@@ -36,6 +36,7 @@ export default defineNuxtConfig({
         '@vueuse/nuxt',
         'nuxt-quasar-ui',
         'nuxt-icons',
+        'vuetify-nuxt-module'
     ],
     nitro: {
         output: {
@@ -49,4 +50,12 @@ export default defineNuxtConfig({
     quasar: {
         plugins: ['Notify'],
     },
+    vuetify: {
+        moduleOptions: {
+            /* module specific options */
+        },
+        vuetifyOptions: {
+            /* vuetify options */
+        }
+    }
 })
