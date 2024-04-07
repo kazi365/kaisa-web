@@ -8,7 +8,6 @@ const envVars = loadEnv(envMode!, process.cwd(), 'NUXT_')
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     alias: {
-        '@web-piece/cookier': 'web-piece/packages/cookier/lib',
         '~bootstrap': resolve(process.cwd(), 'node_modules/bootstrap'),
         '~types': resolve(process.cwd(), 'src/types'),
         '~utils': resolve(process.cwd(), 'src/utils'),
@@ -31,12 +30,10 @@ export default defineNuxtConfig({
     appConfig: {},
     css: ['assets/css/index.scss'],
     modules: [
-        '@nuxtjs/algolia',
         '@unocss/nuxt',
         '@vueuse/nuxt',
-        'nuxt-quasar-ui',
         'nuxt-icons',
-        'vuetify-nuxt-module'
+        'nuxt-quasar-ui',
     ],
     nitro: {
         output: {
@@ -49,13 +46,8 @@ export default defineNuxtConfig({
     sourcemap: false,
     quasar: {
         plugins: ['Notify'],
-    },
-    vuetify: {
-        moduleOptions: {
-            /* module specific options */
+        extras: {
+            fontIcons: ['material-icons', 'material-icons-outlined'],
         },
-        vuetifyOptions: {
-            /* vuetify options */
-        }
-    }
+    },
 })

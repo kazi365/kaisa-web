@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { useWindowScroll, useWindowSize } from '@vueuse/core'
 import type { TMenu } from '~types/menu'
 import { $loginDialog} from '@/components/business/login-dialog'
-import { $indexSearch } from '@/components/index-search'
 
 const route = useRoute()
 
@@ -22,10 +21,6 @@ const menus = ref<TMenu[]>([
     { id: 'teams', label: '队伍', path: '/team' },
     { id: 'players', label: '球员', path: '/athlete' },
 ])
-
-const toIndexSearch = () => {
-    $indexSearch.create()
-}
 
 const doLogin = () => {
     $loginDialog.create()
@@ -76,10 +71,6 @@ const doLogin = () => {
                         </div>
                     </template>
                 </nav>
-                <div class="search-entry" @click="toIndexSearch">
-                    <div class="i-mdi-magnify text-lg" />
-                    <span class="search-entry-text">Search</span>
-                </div>
             </div>
         </div>
     </header>

@@ -8,18 +8,6 @@ push('/news')
 </script>
 
 <template>
-    <article class="home">
-        <section class="banner">
-            <div class="container px-4 mx-auto banner-content">
-                <h1>专业的电竞赛事数据服务商</h1>
-                <p>为电竞行业提供专业的赛事数据服务，为电竞爱好者提供最新的电竞赛事资讯</p>
-                <button class="btn btn-primary btn-contact" @click="toIndexSearch">立即搜索</button>
-            </div>
-            <div class="bball-container">
-                <div class="after-bball"></div>
-            </div>
-        </section>
-    </article>
 </template>
 
 <style lang="scss">
@@ -29,7 +17,6 @@ push('/news')
     .banner {
         letter-spacing: 0.125rem;
         background:
-            url("~/assets/imgs/banner/home.jpg"),
             linear-gradient(to right, #ffffff, #ffffff 25%, #EFF1FE 50%, #EFF1FE);
         background-position: center center;
         background-size: cover;

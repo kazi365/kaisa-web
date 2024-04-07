@@ -1,3 +1,4 @@
+// @ts-ignore
 import type { UseFetchOptions } from 'nuxt/dist/app'
 import { useNotify } from '@/composables/use-notify/useNotify'
 
@@ -30,10 +31,14 @@ export async function commonRequest<R>(
 
         const data =  JSON.parse(JSON.stringify(res.data.value))
         if (data?.success === false) {
-            throw data.msg;
+            const error = data.msg
+            const { notifyOnError = true } = customConfig
+            error && notifyOnError && notify({ msg: JSON.stringify(error?.message ?? error), type: 'negative' });
+            return;
         }
         return Promise.resolve(data);
     } catch (error: any) {
+        console.error(error)
         const { notifyOnError = true } = customConfig
         error && notifyOnError && notify({ msg: JSON.stringify(error?.message ?? error), type: 'negative' });
         return Promise.reject(error);

@@ -18,7 +18,7 @@ const news = ref<any[]>([
     },
     {
         imgPath: news_2,
-        title: '我省举行杭州亚运会亚残运会总结表彰大会 易炼红讲话 王浩主持',
+        title: '共同把握新机遇 携手打造新引擎——习近平主席向第二届全球数字贸易博览会致贺信汇聚共同发展新动能',
         createdAt: '2023-11-24 10:24',
         // 概要
         desc: '11月23日，习近平主席向第二届全球数字贸易博览会致贺信，在与会中外嘉宾和社会各界人士中引发热烈反响。',
@@ -71,6 +71,13 @@ const news = ref<any[]>([
 
 <style lang="scss">
 .news {
+
+    &::before {
+        content: "";
+        display: block;
+        height: var(--header-height);
+    }
+
     .banner {
         .news-card__img {
             img {
