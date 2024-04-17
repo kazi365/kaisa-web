@@ -1,91 +1,15 @@
 <script setup lang="ts">
+import {getTeamList} from "@/src/api/team";
+import {getAthleteList} from "@/src/api/athlete";
+
 const columns = [
     { name: 'name', align: 'left', label: '运动员名称', type: '', },
     { name: 'type', align: 'left', label: '运动类型', type: ''},
     { name: 'country', align: 'left', label: '国家', type: '', },
     { name: 'score', align: 'left', label: '得分', type: '', },
-    { name: 'operation', align: 'left', label: '操作', type: '', },
 ]
 
-const rows = [
-    {
-        name: '张三',
-        type: '足球',
-        country: '中国',
-        score: '2:1',
-        operation: '查看'
-    },
-    {
-        name: '李四',
-        type: '篮球',
-        country: '美国',
-        score: '100:99',
-        operation: '查看'
-    },
-    {
-        name: '王五',
-        type: '乒乓球',
-        country: '日本',
-        score: '3:2',
-        operation: '查看'
-    },
-    {
-        name: '赵六',
-        type: '羽毛球',
-        country: '韩国',
-        score: '2:1',
-        operation: '查看'
-    },
-    {
-        name: '孙七',
-        type: '足球',
-        country: '英国',
-        score: '2:1',
-        operation: '查看'
-    },
-    {
-        name: '周八',
-        type: '篮球',
-        country: '法国',
-        score: '100:99',
-        operation: '查看'
-    },
-    {
-        name: '吴九',
-        type: '乒乓球',
-        country: '德国',
-        score: '3:2',
-        operation: '查看'
-    },
-    {
-        name: '郑十',
-        type: '羽毛球',
-        country: '韩国',
-        score: '2:1',
-        operation: '查看'
-    },
-    {
-        name: '钱十一',
-        type: '足球',
-        country: '英国',
-        score: '2:1',
-        operation: '查看'
-    },
-    {
-        name: '孙十二',
-        type: '篮球',
-        country: '法国',
-        score: '100:99',
-        operation: '查看'
-    },
-    {
-        name: '周十三',
-        type: '乒乓球',
-        country: '德国',
-        score: '3:2',
-        operation: '查看'
-    }
-]
+const rows = ref<any>([])
 
 const searchForm = ref({
     name: '',
@@ -94,12 +18,50 @@ const searchForm = ref({
 })
 
 const typeOptions = [
-    { label: '全部', value: '' },
-    { label: '足球', value: '1' },
-    { label: '篮球', value: '2' },
-    { label: '乒乓球', value: '3' },
-    { label: '羽毛球', value: '4' }
+    { label: '足球', value: '足球' },
+    { label: '篮球', value: '篮球' },
+    { label: '乒乓球', value: '乒乓球' },
+    { label: '羽毛球', value: '羽毛球' }
 ]
+
+const search = () => {
+    getAthleteListData()
+}
+
+const tablePagination = ref({
+    sortBy: 'desc',
+    descending: false,
+    page: 1,
+    rowsPerPage: 10,
+    rowsNumber: 0
+})
+
+const tableLoading = ref(false)
+
+const getAthleteListData = async () => {
+    tableLoading.value = true
+    const { obj } = await getAthleteList(
+            {
+                name: searchForm.value.name,
+                type: searchForm.value.type,
+                country: searchForm.value.country,
+                pageParam: {
+                    pageNum: !tablePagination.value?.page ? 1 : tablePagination.value.page,
+                    pageSize: !tablePagination.value?.rowsPerPage ? 10 : tablePagination.value.rowsPerPage,
+                    total: 0
+                }
+            }
+    )
+    rows.value = obj.pageData
+    tablePagination.value.rowsNumber = obj.pageParam.total
+    tableLoading.value = false
+}
+
+const onRequest = (props: any) => {
+    tablePagination.value.page = props.pagination.page
+    tablePagination.value.rowsPerPage = props.pagination.rowsPerPage
+    getAthleteListData()
+}
 
 </script>
 
@@ -125,6 +87,7 @@ const typeOptions = [
                                     label="赛事类型"
                                     v-model="searchForm.type"
                                     :options="typeOptions"
+
                             />
 
                             <q-btn dense label="搜索" color="primary" @click="search" />
@@ -136,6 +99,10 @@ const typeOptions = [
                                 :rows="rows"
                                 :columns="columns"
                                 row-key="name"
+                                v-model:pagination="tablePagination"
+                                :loading="tableLoading"
+                                :rows-per-page-options="[10, 20, 50, 100]"
+                                @request="onRequest"
                         >
 
                             <template v-slot:header="props">
@@ -149,16 +116,31 @@ const typeOptions = [
                                     </q-th>
                                 </q-tr>
                             </template>
-                            <template v-slot:body="props">
-                                <q-tr :props="props">
-                                    <q-td
-                                            v-for="col in props.cols"
-                                            :key="col.name"
-                                            :props="props"
-                                    >
-                                        {{ props.row[col.name] }}
-                                    </q-td>
-                                </q-tr>
+                            <template #body-cell-name="props">
+                                <q-td :props="props">{{ props.row.name }}</q-td>
+                            </template>
+                            <template #body-cell-type="props">
+                                <q-td :props="props">{{ props.row.type }}</q-td>
+                            </template>
+                            <template #body-cell-country="props">
+                                <q-td :props="props">{{ props.row.country }}</q-td>
+                            </template>
+                            <template #body-cell-score="props">
+                                <q-td :props="props">{{ props.row.score }}</q-td>
+                            </template>
+
+                            <template #body-cell-operation="props">
+                                <q-td :props="props">
+                                    <q-btn
+                                            dense
+                                            no-wrap
+                                            outline
+                                            padding="sm"
+                                            flat
+                                            color="primary"
+                                            label="查看" >
+                                    </q-btn>
+                                </q-td>
                             </template>
                         </q-table>
                     </q-card-section>

@@ -1,84 +1,23 @@
 <script setup lang="ts">
+import {getGameList} from "@/src/api/game";
+
 const columns = [
-    { name: 'name', align: 'left', label: '赛事名称', type: '', },
+    { name: 'gameName', align: 'left', label: '赛事名称', type: '', },
     { name: 'type', align: 'left', label: '比赛类型', type: ''},
     { name: 'startTime', align: 'left', label: '开始时间', type: '', },
     { name: 'status', align: 'left', label: '状态', type: '', },
     { name: 'operation', align: 'left', label: '操作', type: '', },
 ]
 
-const rows = [
-    {
-        name: 'FBL01',
-        type: '足球',
-        startTime: '2021-09-01 12:00:00',
-        status: '未开始',
-        operation: '查看'
-    },
-    {
-        name: 'BB-2021-001',
-        type: '篮球',
-        startTime: '2021-09-01 12:00:00',
-        status: '进行中',
-        operation: '查看'
-    },
-    {
-        name: 'PP-2021-001',
-        type: '乒乓球',
-        startTime: '2021-09-01 12:00:00',
-        status: '已结束',
-        operation: '查看'
-    },
-    {
-        name: 'YM-2021-001',
-        type: '羽毛球',
-        startTime: '2021-09-01 12:00:00',
-        status: '未开始',
-        operation: '查看'
-    },
-    {
-        name: 'FB-2021-002',
-        type: '足球',
-        startTime: '2021-09-01 12:00:00',
-        status: '未开始',
-        operation: '查看'
-    },
-    {
-        name: 'BB-2021-002',
-        type: '篮球',
-        startTime: '2021-09-01 12:00:00',
-        status: '进行中',
-        operation: '查看'
-    },
-    {
-        name: 'PP-2021-002',
-        type: '乒乓球',
-        startTime: '2021-09-01 12:00:00',
-        status: '已结束',
-        operation: '查看'
-    },
-    {
-        name: 'YM-2021-002',
-        type: '羽毛球',
-        startTime: '2021-09-01 12:00:00',
-        status: '未开始',
-        operation: '查看'
-    },
-    {
-        name: 'FB-2021-003',
-        type: '足球',
-        startTime: '2021-09-01 12:00:00',
-        status: '未开始',
-        operation: '查看'
-    },
-    {
-        name: 'BB-2021-003',
-        type: '篮球',
-        startTime: '2021-09-01 12:00:00',
-        status: '进行中',
-        operation: '查看'
-    }
-]
+const rows = ref<any>([])
+const tablePagination = ref({
+    sortBy: 'desc',
+    descending: false,
+    page: 1,
+    rowsPerPage: 10,
+    rowsNumber: 0
+})
+const tableLoading = ref(false)
 
 const searchForm = ref({
     name: '',
@@ -88,11 +27,10 @@ const searchForm = ref({
 })
 
 const typeOptions = [
-    { label: '全部', value: '' },
-    { label: '足球', value: '1' },
-    { label: '篮球', value: '2' },
-    { label: '乒乓球', value: '3' },
-    { label: '羽毛球', value: '4' }
+    { label: '足球', value: '足球' },
+    { label: '篮球', value: '篮球' },
+    { label: '乒乓球', value: '乒乓球' },
+    { label: '羽毛球', value: '羽毛球' }
 ]
 
 const statusOptions = [
@@ -100,8 +38,46 @@ const statusOptions = [
     { label: '进行中', value: '1' },
     { label: '已结束', value: '2' }
 ]
+
+const getGameListData = async () => {
+    tableLoading.value = true
+    const { obj } = await getGameList(
+        {
+            gameName: searchForm.value.name,
+            type: searchForm.value.type,
+            status: searchForm.value.status,
+            pageParam: {
+                pageNum: !tablePagination.value?.page ? 1 : tablePagination.value.page,
+                pageSize: !tablePagination.value?.rowsPerPage ? 10 : tablePagination.value.rowsPerPage,
+                total: 0
+            }
+        }
+    )
+    rows.value = obj.pageData
+    tablePagination.value.rowsNumber = obj.pageParam.total
+    tableLoading.value = false
+}
+
 const search = () => {
-    console.log(searchForm.value)
+    getGameListData()
+}
+
+const cpu_displayStatusValue = (value: string) => {
+    const status = statusOptions.find(item => item.value === value)
+    return status?.label
+}
+
+const cpu_timestampToTime = (timestamp: number) => {
+    return new Date(timestamp).toLocaleString()
+}
+
+getGameListData()
+
+const onRequest = (props: any) => {
+    tablePagination.value.page = props.pagination.page
+    tablePagination.value.rowsPerPage = props.pagination.rowsPerPage
+    getGameListData()
+
 }
 </script>
 
@@ -124,14 +100,23 @@ const search = () => {
                             <q-select
                                     outlined
                                     label="赛事类型"
+                                    emitValue
+                                    clearable
                                     v-model="searchForm.type"
                                     :options="typeOptions"
+                                    option-label="label"
+                                    option-value="value"
                             />
                             <q-select
                                     outlined
                                     label="状态"
+                                    clearable
                                     v-model="searchForm.status"
+                                    :display-value="cpu_displayStatusValue(searchForm.status)"
                                     :options="statusOptions"
+                                    emitValue
+                                    option-label="label"
+                                    option-value="value"
                             />
                             <q-btn dense label="搜索" color="primary" @click="search" />
                         </q-form>
@@ -141,8 +126,12 @@ const search = () => {
                                 title="赛事信息"
                                 :rows="rows"
                                 :columns="columns"
+                                :loading="tableLoading"
                                 row-key="name"
-                        >
+                                v-model:pagination="tablePagination"
+                                :rows-per-page-options="[10, 20, 50, 100]"
+                                @request="onRequest"
+                            >
 
                             <template v-slot:header="props">
                                 <q-tr :props="props">
@@ -155,18 +144,32 @@ const search = () => {
                                     </q-th>
                                 </q-tr>
                             </template>
-                            <template v-slot:body="props">
-                                <q-tr :props="props">
-                                    <q-td
-                                            v-for="col in props.cols"
-                                            :key="col.name"
-                                            :props="props"
-                                    >
-                                        {{ props.row[col.name] }}
-                                    </q-td>
-                                </q-tr>
+                            <template #body-cell-gameName="props">
+                                <q-td :props="props">{{ props.row.gameName }}</q-td>
+                            </template>
+                            <template #body-cell-type="props">
+                                <q-td :props="props">{{ props.row.type }}</q-td>
+                            </template>
+                            <template #body-cell-startTime="props">
+                                <q-td :props="props">{{ cpu_timestampToTime(props.row.startTime) }}</q-td>
+                            </template>
+                            <template #body-cell-status="props">
+                                <q-td :props="props">{{ props.row.status }}</q-td>
                             </template>
 
+                            <template #body-cell-operation="props">
+                                <q-td :props="props">
+                                    <q-btn
+                                            dense
+                                            no-wrap
+                                            outline
+                                            padding="sm"
+                                            flat
+                                            color="primary"
+                                            label="查看" >
+                                    </q-btn>
+                                </q-td>
+                            </template>
                         </q-table>
                     </q-card-section>
                 </q-card>

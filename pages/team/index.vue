@@ -1,91 +1,23 @@
 <script setup lang="ts">
+import {getTeamList} from "@/src/api/team";
+
 const columns = [
-    { name: 'name', align: 'left', label: '队伍名称', field: 'name', sortable: true },
+    { name: 'teamName', align: 'left', label: '队伍名称', field: 'name', sortable: true },
     { name: 'type', align: 'left', label: '类型', field: 'type', sortable: true },
     { name: 'country', align: 'left', label: '国家', field: 'country', sortable: true },
     { name: 'score', align: 'left', label: '得分', field: 'score', sortable: true },
-    { name: 'operation', align: 'left', label: '操作', field: 'operation', sortable: false }
 ]
 
-const rows = [
-    {
-        name: '中国队',
-        type: '足球',
-        country: '中国',
-        score: '2:1',
-        operation: '查看'
-    },
-    {
-        name: '美国队',
-        type: '篮球',
-        country: '美国',
-        score: '100:99',
-        operation: '查看'
-    },
-    {
-        name: '日本队',
-        type: '乒乓球',
-        country: '日本',
-        score: '3:2',
-        operation: '查看'
-    },
-    {
-        name: '韩国队',
-        type: '羽毛球',
-        country: '韩国',
-        score: '2:1',
-        operation: '查看'
-    },
-    {
-        name: '英国队',
-        type: '足球',
-        country: '英国',
-        score: '2:1',
-        operation: '查看'
-    },
-    {
-        name: '法国队',
-        type: '篮球',
-        country: '法国',
-        score: '100:99',
-        operation: '查看'
-    },
-    {
-        name: '德国队',
-        type: '乒乓球',
-        country: '德国',
-        score: '3:2',
-        operation: '查看'
-    },
-    {
-        name: '意大利队',
-        type: '羽毛球',
-        country: '意大利',
-        score: '2:1',
-        operation: '查看'
-    },
-    {
-        name: '中国队',
-        type: '足球',
-        country: '中国',
-        score: '2:1',
-        operation: '查看'
-    },
-    {
-        name: '美国队',
-        type: '篮球',
-        country: '美国',
-        score: '100:99',
-        operation: '查看'
-    },
-    {
-        name: '日本队',
-        type: '乒乓球',
-        country: '日本',
-        score: '3:2',
-        operation: '查看'
-    }
-]
+const rows = ref<any>([])
+const tablePagination = ref({
+    sortBy: 'desc',
+    descending: false,
+    page: 1,
+    rowsPerPage: 10,
+    rowsNumber: 0
+})
+
+const tableLoading = ref(false)
 
 const searchForm = ref({
     country: '',
@@ -93,12 +25,43 @@ const searchForm = ref({
 })
 
 const typeOptions = [
-    { label: '全部', value: '' },
-    { label: '足球', value: '1' },
-    { label: '篮球', value: '2' },
-    { label: '乒乓球', value: '3' },
-    { label: '羽毛球', value: '4' }
+    { label: '足球', value: '足球' },
+    { label: '篮球', value: '篮球' },
+    { label: '乒乓球', value: '乒乓球' },
+    { label: '羽毛球', value: '羽毛球' }
 ]
+
+const onRequest = (props: any) => {
+    tablePagination.value.page = props.pagination.page
+    tablePagination.value.rowsPerPage = props.pagination.rowsPerPage
+    getTeamListData()
+
+}
+
+const search = () => {
+    getTeamListData()
+}
+
+const getTeamListData = async () => {
+    tableLoading.value = true
+    const { obj } = await getTeamList(
+            {
+                // teamName: searchForm.value.name,
+                type: searchForm.value.type,
+                country: searchForm.value.country,
+                pageParam: {
+                    pageNum: !tablePagination.value?.page ? 1 : tablePagination.value.page,
+                    pageSize: !tablePagination.value?.rowsPerPage ? 10 : tablePagination.value.rowsPerPage,
+                    total: 0
+                }
+            }
+    )
+    rows.value = obj.pageData
+    tablePagination.value.rowsNumber = obj.pageParam.total
+    tableLoading.value = false
+}
+
+getTeamListData()
 
 </script>
 
@@ -110,7 +73,7 @@ const typeOptions = [
             </div>
             <div>
                 <p class="title mt-2 ml-2 text-2xl">
-                    运动员浏览
+                    队伍信息浏览
                 </p>
             </div>
             <div class="q-pa-md">
@@ -121,8 +84,12 @@ const typeOptions = [
                             <q-select
                                     outlined
                                     label="赛事类型"
+                                    clearable
                                     v-model="searchForm.type"
                                     :options="typeOptions"
+                                    emitValue
+                                    option-label="label"
+                                    option-value="value"
                             />
 
                             <q-btn dense label="搜索" color="primary" @click="search" />
@@ -133,7 +100,11 @@ const typeOptions = [
                                 title="队伍信息"
                                 :rows="rows"
                                 :columns="columns"
+                                :loading="tableLoading"
                                 row-key="name"
+                                v-model:pagination="tablePagination"
+                                :rows-per-page-options="[10, 20, 50, 100]"
+                                @request="onRequest"
                         >
 
                             <template v-slot:header="props">
@@ -147,23 +118,35 @@ const typeOptions = [
                                     </q-th>
                                 </q-tr>
                             </template>
-                            <template v-slot:body="props">
-                                <q-tr :props="props">
-                                    <q-td
-                                            v-for="col in props.cols"
-                                            :key="col.name"
-                                            :props="props"
-                                    >
-                                        {{ props.row[col.name] }}
-                                    </q-td>
-                                </q-tr>
+                            <template #body-cell-teamName="props">
+                                <q-td :props="props">{{ props.row.teamName }}</q-td>
+                            </template>
+                            <template #body-cell-type="props">
+                                <q-td :props="props">{{ props.row.type }}</q-td>
+                            </template>
+                            <template #body-cell-country="props">
+                                <q-td :props="props">{{ props.row.country }}</q-td>
+                            </template>
+                            <template #body-cell-score="props">
+                                <q-td :props="props">{{ props.row.score }}</q-td>
                             </template>
 
+                            <template #body-cell-operation="props">
+                                <q-td :props="props">
+                                    <q-btn
+                                            dense
+                                            no-wrap
+                                            outline
+                                            padding="sm"
+                                            flat
+                                            color="primary"
+                                            label="查看" >
+                                    </q-btn>
+                                </q-td>
+                            </template>
                         </q-table>
                     </q-card-section>
                 </q-card>
-
-
             </div>
         </div>
     </article>
