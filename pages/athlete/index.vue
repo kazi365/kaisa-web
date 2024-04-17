@@ -63,6 +63,7 @@ const onRequest = (props: any) => {
     getAthleteListData()
 }
 
+getAthleteListData()
 </script>
 
 <template>
@@ -87,7 +88,10 @@ const onRequest = (props: any) => {
                                     label="赛事类型"
                                     v-model="searchForm.type"
                                     :options="typeOptions"
-
+                                    option-label="label"
+                                    option-value="value"
+                                    emitValue
+                                    clearable
                             />
 
                             <q-btn dense label="搜索" color="primary" @click="search" />

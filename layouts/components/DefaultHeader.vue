@@ -6,8 +6,6 @@ import { $loginDialog} from '@/components/business/login-dialog'
 
 const route = useRoute()
 
-const { y } = useWindowScroll()
-
 const { width: windowWidth } = useWindowSize()
 const asideShow = ref(false)
 const hasAside = computed(() => windowWidth.value < 1024)

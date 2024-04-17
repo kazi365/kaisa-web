@@ -14,10 +14,12 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@pinia/nuxt": "^0.5.1",
     "@popperjs/core": "^2.11.6",
     "@quasar/extras": "^1.16.11",
     "bootstrap": "^5.2.3",
     "nuxt-icons": "^3.1.0",
+    "pinia": "^2.1.7",
     "quasar": "^2.15.2"
   },
   "devDependencies": {

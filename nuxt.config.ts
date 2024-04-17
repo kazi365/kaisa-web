@@ -34,6 +34,7 @@ export default defineNuxtConfig({
         '@vueuse/nuxt',
         'nuxt-icons',
         'nuxt-quasar-ui',
+        '@pinia/nuxt',
     ],
     nitro: {
         output: {

@@ -1,7 +1,11 @@
 <script lang="ts">
 import { computed, defineComponent, reactive, ref } from 'vue'
-import { login } from "@/src/api/login"
+import { user } from "@/src/api/user"
 import { $loginDialog } from './index'
+import { COOKIE_KEY_MAP, setCookie } from "~utils/cookier";
+import {useNotify} from "@/composables/use-notify/useNotify";
+import {$registerDialog} from "@/components/business/register-dialog";
+const { notify } = useNotify()
 
 export default defineComponent({
     name: 'LoginDialog',
@@ -41,7 +45,6 @@ export default defineComponent({
         })
 
         const submitLoading = ref(false)
-        const isSubmitSuccess = ref(false)
         const cpu_isEmpty = computed(() => {
             return Object.values(formData).some(item => !item);
         })
@@ -50,15 +53,31 @@ export default defineComponent({
             if (!cpu_isEmpty || submitLoading.value) return;
             submitLoading.value = true
             try {
-                await login(formData)
-                isSubmitSuccess.value = true
-                setTimeout(() => {
-                    close()
-                }, 2000);
+                const { obj } = await user(formData)
+                const { token } = obj
+                setCookie(COOKIE_KEY_MAP.TOKEN, token, {
+                    path: import.meta.env.NUXT_APP_BASE_PATH,
+                    domain: import.meta.env.NUXT_APP_COOKIE_DOMAIN,
+                })
+                // 登录成功提示
+                notify({
+                    msg: '登录成功',
+                    type: 'info',
+                    position: 'top',
+                })
+                close()
             } catch (error) {
-                window.alert(error)
-                submitLoading.value = false
+                //
             }
+            submitLoading.value = false
+        }
+
+        const toRegister = () => {
+            close()
+            setTimeout(() => {
+                $loginDialog.unmount()
+                $registerDialog.create()
+            }, 500);
         }
 
         expose({
@@ -72,9 +91,9 @@ export default defineComponent({
             close,
             formData,
             submitLoading,
-            isSubmitSuccess,
             cpu_isEmpty,
             submit,
+            toRegister,
         };
     }
 })
@@ -91,10 +110,10 @@ export default defineComponent({
                 <div class="flex">
                     <div class="flex-1 min-w-0">
                         <div class="dialog__header">
-                            <span class="dialog-title" :class="{ 'invisible': isSubmitSuccess }">用户登录</span>
+                            <span class="dialog-title">用户登录</span>
                         </div>
                         <div class="dialog__main">
-                            <form v-if="!isSubmitSuccess" action="" @submit="submit">
+                            <form  action="" @submit="submit">
                                 <div class="def-form-item">
                                     <label class="form-label required" for="username">用户名</label>
                                     <div>
@@ -131,16 +150,12 @@ export default defineComponent({
                                         <span class="align-middle">登录</span>
                                         <div v-if="submitLoading" class="i-mdi-loading ml-4" />
                                     </button>
+                                    <span>
+                                        <span class="ml-4">没有账号？</span>
+                                        <a @click="toRegister" class="text-primary">立即注册</a>
+                                    </span>
                                 </div>
                             </form>
-                            <div v-else class="text-center">
-                                <div class="i-mdi-check-circle-outline icon-success" />
-                                <p class="mt-0 text-2xl">Thank you</p>
-                                <p class="mb-8">
-                                    We appreciate that you've taken the time to write us.<br />
-                                    We'll be back to you very soon.
-                                </p>
-                            </div>
                         </div>
                     </div>
                     <div class="contact-illustration">
