@@ -14,18 +14,6 @@ export default defineNuxtConfig({
     },
     app: {
         baseURL: envVars.NUXT_APP_BASE_PATH || '/',
-        head: {
-            script: [
-                {
-                    async: true,
-                    defer: true,
-                    id: 'hs-script-loader',
-                    src: '//js.hs-scripts.com/43559250.js',
-                    type: 'text/javascript',
-                },
-            ],
-        },
-        rootId: '__simlessly',
     },
     appConfig: {},
     css: ['assets/css/index.scss'],

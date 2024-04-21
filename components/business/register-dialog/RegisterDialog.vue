@@ -1,11 +1,15 @@
 <script lang="ts">
 import { computed, defineComponent, reactive, ref } from 'vue'
-import country_region from '@/assets/json/country_region.json'
-import { addContact } from "@/src/api/contact"
 import { $registerDialog } from './index'
+import RtSelect from "@/components/select/RtSelect.vue";
+import RtTextarea from "@/components/textarea/RtTextarea.vue";
+import {signup} from "@/src/api/user";
+import {useNotify} from "@/composables/use-notify/useNotify";
+const { notify } = useNotify()
 
 export default defineComponent({
     name: 'RegisterDialog',
+    components: {RtTextarea, RtSelect},
     props: {},
     directives: {
         setSize: {
@@ -30,37 +34,20 @@ export default defineComponent({
             visible.value = true
         }
         const close = () => {
+            $registerDialog.unmount()
             visible.value = false
             setTimeout(() => {
             }, 500);
         }
 
         const formData = reactive({
-            fullName: '',
+            username: '',
             email: '',
-            companyName: '',
-            countryOrRegion: '',
-            product: '',
-            more: '',
-            hear: '',
+            phone: '',
+            password: '',
+            firstName: '',
+            lastName: '',
         })
-        const countriesAndRegions = country_region.map(item => item.en)
-        const products = [
-            'iSIM Enablement solution',
-            'RSP SaaS',
-            'eIM platform',
-            'eSIM Chip',
-            'nuSIM module: BG95M3-nuSIM',
-            'Other',
-        ]
-        const hears = [
-            'Existing Simlessly customer',
-            'Search engine e.g.Google',
-            'Linkedin',
-            'Social media',
-            'Word of mouth',
-            'Other',
-        ]
 
         const submitLoading = ref(false)
         const isSubmitSuccess = ref(false)
@@ -71,20 +58,15 @@ export default defineComponent({
             e.preventDefault()
             if (!cpu_isEmpty || submitLoading.value) return;
             submitLoading.value = true
-            try {
-                await addContact(formData)
-                isSubmitSuccess.value = true
-                gtm?.trackEvent({
-                    event: 'contact',
-                    send_to: 'AW-16453342700/71CaCIr9ro8ZEOyryKU9',
-                })
-                setTimeout(() => {
-                    close()
-                }, 2000);
-            } catch (error) {
-                window.alert(error)
-                submitLoading.value = false
-            }
+            await signup(formData)
+            notify({
+                msg: '注册成功',
+                type: 'info',
+                position: 'top',
+            })
+            submitLoading.value = false
+            isSubmitSuccess.value = true
+            close()
         }
 
         expose({
@@ -97,9 +79,6 @@ export default defineComponent({
             open,
             close,
             formData,
-            countriesAndRegions,
-            products,
-            hears,
             submitLoading,
             isSubmitSuccess,
             cpu_isEmpty,
@@ -110,7 +89,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <div class="contact-dialog">
+    <div class="register-dialog">
         <transition name="mask">
             <div v-show="visible" class="dialog-mask" />
         </transition>
@@ -120,25 +99,25 @@ export default defineComponent({
                 <div class="flex">
                     <div class="flex-1 min-w-0">
                         <div class="dialog__header">
-                            <span class="dialog-title" :class="{ 'invisible': isSubmitSuccess }">Contact Us</span>
+                            <span class="dialog-title" :class="{ 'invisible': isSubmitSuccess }">用户注册</span>
                         </div>
                         <div class="dialog__main">
                             <form v-if="!isSubmitSuccess" action="" @submit="submit">
                                 <div class="def-form-item">
-                                    <label class="form-label required" for="fullName">Full Name</label>
+                                    <label class="form-label required" for="username">用户名</label>
                                     <div>
                                         <RtInput
                                             class="w-full"
-                                            v-model="formData.fullName"
+                                            v-model="formData.username"
                                             id="fullName"
                                             maxlength="32"
                                             name="fullName"
-                                            @change="formData.fullName = (formData.fullName ?? '').trim()"
+                                            @change="formData.username = (formData.username ?? '').trim()"
                                         />
                                     </div>
                                 </div>
                                 <div class="def-form-item">
-                                    <label class="form-label required" for="email">Email</label>
+                                    <label class="form-label required" for="email">邮箱</label>
                                     <div>
                                         <RtInput
                                             class="w-full"
@@ -151,11 +130,11 @@ export default defineComponent({
                                     </div>
                                 </div>
                                 <div class="def-form-item">
-                                    <label class="form-label required" for="companyName">Company</label>
+                                    <label class="form-label required" for="phone">电话</label>
                                     <div>
                                         <RtInput
                                             class="w-full"
-                                            v-model.trim="formData.companyName"
+                                            v-model.trim="formData.phone"
                                             id="companyName"
                                             maxlength="32"
                                             name="companyName"
@@ -163,50 +142,40 @@ export default defineComponent({
                                     </div>
                                 </div>
                                 <div class="def-form-item">
-                                    <label class="form-label required" for="countryOrRegion">Country/Region</label>
+                                    <label class="form-label required" for="password">密码</label>
                                     <div>
-                                        <RtSelect
-                                            class="w-full"
-                                            v-model="formData.countryOrRegion"
-                                            id="countryOrRegion"
-                                            name="countryOrRegion"
-                                            :options="countriesAndRegions"
+                                        <RtInput
+                                                class="w-full"
+                                                v-model.trim="formData.password"
+                                                id="companyName"
+                                                maxlength="32"
+                                                name="companyName"
+                                                type="password"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="def-form-item">
+                                    <label class="form-label required" for="firstName">名</label>
+                                    <div>
+                                        <RtInput
+                                                class="w-full"
+                                                v-model.trim="formData.firstName"
+                                                id="companyName"
+                                                maxlength="32"
+                                                name="companyName"
                                         />
                                     </div>
                                 </div>
                                 <div class="def-form-item">
-                                    <label class="form-label required" for="product">Consulting Product</label>
+                                    <label class="form-label required" for="lastName">姓</label>
                                     <div>
-                                        <RtSelect
-                                            class="w-full"
-                                            v-model="formData.product"
-                                            id="product"
-                                            name="product"
-                                            :options="products"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="def-form-item">
-                                    <label class="form-label required" for="more">Message</label>
-                                    <div>
-                                        <RtTextarea
-                                            class="w-full"
-                                            v-model.trim="formData.more"
-                                            id="more"
-                                            maxlength="256"
-                                            name="more"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="def-form-item">
-                                    <label class="form-label required" for="hear">How did you hear about us?</label>
-                                    <div>
-                                        <RtSelect
-                                            class="w-full"
-                                            v-model="formData.hear"
-                                            id="hear"
-                                            name="hear"
-                                            :options="hears"
+                                        <RtInput
+                                                class="w-full"
+                                                v-model.trim="formData.lastName"
+                                                id="companyName"
+                                                maxlength="32"
+                                                name="companyName"
                                         />
                                     </div>
                                 </div>
@@ -216,7 +185,7 @@ export default defineComponent({
                                         :disabled="cpu_isEmpty || submitLoading"
                                         type="submit"
                                     >
-                                        <span class="align-middle">Send Message</span>
+                                        <span class="align-middle">注册</span>
                                         <div v-if="submitLoading" class="i-mdi-loading ml-4" />
                                     </button>
                                 </div>
@@ -224,10 +193,6 @@ export default defineComponent({
                             <div v-else class="text-center">
                                 <div class="i-mdi-check-circle-outline icon-success" />
                                 <p class="mt-0 text-2xl">Thank you</p>
-                                <p class="mb-8">
-                                    We appreciate that you've taken the time to write us.<br />
-                                    We'll be back to you very soon.
-                                </p>
                             </div>
                         </div>
                     </div>
@@ -249,7 +214,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 @import "~/assets/css/variables.module.scss";
 
-.contact-dialog {
+.register-dialog {
     position: fixed;
     top: 0;
     left: 0;

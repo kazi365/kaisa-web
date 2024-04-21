@@ -15,7 +15,28 @@ export function getGameList(
             startTime: Date,
             type: string,
             status: string,
+            subscribeStatus: string,
         }[],
         pageParam: TPagination
         }}>('/api/v1/game/getGameList', data, { cache: 'no-cache' });
+}
+
+// subscribeGame
+export function subscribeGame(
+        data: {
+            gameId: string,
+        }
+) {
+    return commonPostJson<{ obj: {
+    }}>('/api/v1/game/subscribeGame', data);
+}
+
+// unsubscribeGame
+export function unsubscribeGame(
+        data: {
+            gameId: string,
+        }
+) {
+    return commonPostJson<{ obj: {
+    }}>('/api/v1/game/cancelSubscribeGame', data);
 }

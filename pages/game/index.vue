@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import {getGameList} from "@/src/api/game";
+import {getGameList, subscribeGame, unsubscribeGame} from "@/src/api/game";
+
+import { useNotify } from '@/composables/use-notify/useNotify'
+
+const { notify } = useNotify()
 
 const columns = [
     { name: 'gameName', align: 'left', label: '赛事名称', type: '', },
     { name: 'type', align: 'left', label: '比赛类型', type: ''},
+    { name: 'place', align: 'left', label: '比赛地点', type: '', },
     { name: 'startTime', align: 'left', label: '开始时间', type: '', },
     { name: 'status', align: 'left', label: '状态', type: '', },
+    { name: 'subscribeStatus', align: 'left', label: '订阅状态', type: '', },
     { name: 'operation', align: 'left', label: '操作', type: '', },
 ]
 
@@ -58,6 +64,9 @@ const getGameListData = async () => {
     tableLoading.value = false
 }
 
+
+getGameListData()
+
 const search = () => {
     getGameListData()
 }
@@ -71,18 +80,121 @@ const cpu_timestampToTime = (timestamp: number) => {
     return new Date(timestamp).toLocaleString()
 }
 
-getGameListData()
-
 const onRequest = (props: any) => {
     tablePagination.value.page = props.pagination.page
     tablePagination.value.rowsPerPage = props.pagination.rowsPerPage
     getGameListData()
-
 }
+
+const small = ref(false)
+
+const prorsRow = ref<any>({})
+
+const showSubscribe = (row: any) => {
+    small.value = true
+    prorsRow.value = row
+}
+
+const subscribe = () => {
+    small.value = false
+    const subscribe = prorsRow.value.subscribeStatus === '未订阅'
+    if (subscribe) {
+        subscribeGame({
+            gameId: prorsRow.value.id
+        }).then(() => {
+            notify({
+                msg: '订阅成功',
+                type: 'info',
+                position: 'top',
+            })
+            getGameListData()
+        })
+    } else {
+        unsubscribeGame({
+            gameId: prorsRow.value.id
+        }).then(() => {
+            notify({
+                msg: '取消订阅成功',
+                type: 'info',
+                position: 'top',
+            })
+            getGameListData()
+        })
+    }
+    prorsRow.value = {}
+}
+
+const medium = ref(false)
+const detailRow = ref<any>({})
+
+const detail = (row: any) => {
+    medium.value = true
+    detailRow.value = row
+}
+
 </script>
 
 <template>
     <article class="game">
+        <q-dialog
+                v-model="small"
+        >
+            <q-card style="width: 300px">
+                <q-card-section>
+                    <div class="text-h6">赛事订阅</div>
+                </q-card-section>
+
+                <q-card-section class="q-pt-none">
+                    是否订阅或者取消订阅该赛事？
+                </q-card-section>
+
+                <q-card-actions align="right" class="bg-white text-teal">
+                    <q-btn flat label="确认" v-close-popup @click="subscribe" />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
+        <q-dialog
+                v-model="medium"
+                class="dialog-medium"
+        >
+            <q-card class="dialog-medium-card" style="width: 700px; max-width: 80vw; ">
+                <q-card-section>
+                    <div class="text-h4">赛事详情</div>
+                </q-card-section>
+
+                <q-card-section class="q-pt-none">
+                    <div>
+                        <div class="text-xl mb-2">赛事信息</div>
+                        <q-separator />
+                        <div class="mt-4" id="dialog-item">
+                            <span class="">赛事名称：</span>
+                            <span class="">{{ detailRow.gameName }}</span>
+                        </div>
+                        <div class="" id="dialog-item">
+                            <span class="">比赛类型：</span>
+                            <span  class="detail-content-item-content">{{ detailRow.type }}</span>
+                        </div>
+                        <div class="" id="dialog-item">
+                            <span class="">比赛地点：</span>
+                            <span  class="">{{ detailRow.place }}</span>
+                        </div>
+                        <div class="" id="dialog-item">
+                            <span class="">开始时间：</span>
+                            <span  class="">{{ cpu_timestampToTime(detailRow.startTime) }}</span>
+                        </div>
+                        <div class="" id="dialog-item">
+                            <span class="">状态：</span>
+                            <span  class="">{{ detailRow.status }}</span>
+                        </div>
+                        <div class="" id="dialog-item">
+                            <span class="">订阅状态：</span>
+                            <span  class="">{{ detailRow.subscribeStatus }}</span>
+                        </div>
+                    </div>
+
+                </q-card-section>
+            </q-card>
+        </q-dialog>
         <div class="banner">
             <div class="news-card__img">
                 <img src="@/assets/imgs/news/news_bg.png" alt="news" />
@@ -150,11 +262,17 @@ const onRequest = (props: any) => {
                             <template #body-cell-type="props">
                                 <q-td :props="props">{{ props.row.type }}</q-td>
                             </template>
+                            <template #body-cell-place="props">
+                                <q-td :props="props">{{ props.row.place }}</q-td>
+                            </template>
                             <template #body-cell-startTime="props">
                                 <q-td :props="props">{{ cpu_timestampToTime(props.row.startTime) }}</q-td>
                             </template>
                             <template #body-cell-status="props">
                                 <q-td :props="props">{{ props.row.status }}</q-td>
+                            </template>
+                            <template #body-cell-subscribeStatus="props">
+                                <q-td :props="props">{{ props.row.subscribeStatus }}</q-td>
                             </template>
 
                             <template #body-cell-operation="props">
@@ -166,8 +284,31 @@ const onRequest = (props: any) => {
                                             padding="sm"
                                             flat
                                             color="primary"
-                                            label="查看" >
-                                    </q-btn>
+                                            label="查看详情"
+                                            @click="detail(props.row)"
+                                    />
+                                    <q-btn
+                                            v-if="props.row.status === '未开始' && props.row.subscribeStatus === '未订阅'"
+                                            dense
+                                            no-wrap
+                                            outline
+                                            padding="sm"
+                                            flat
+                                            color="primary"
+                                            label="订阅"
+                                            @click="showSubscribe(props.row)"
+                                    />
+                                    <q-btn
+                                            v-if="props.row.status === '未开始' && props.row.subscribeStatus === '已订阅'"
+                                            dense
+                                            no-wrap
+                                            outline
+                                            padding="sm"
+                                            flat
+                                            color="primary"
+                                            label="取消订阅"
+                                            @click="showSubscribe(props.row)"
+                                    />
                                 </q-td>
                             </template>
                         </q-table>
@@ -179,6 +320,11 @@ const onRequest = (props: any) => {
 </template>
 
 <style lang="scss" scoped>
+#dialog-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
 .game {
     &::before {
         content: "";

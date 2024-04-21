@@ -1,0 +1,31 @@
+/* quasar-variables */
+/* https://github.com/quasarframework/quasar/blob/dev/ui/src/css/variables.sass */
+
+$primary: var(--s-color-theme) !default;
+$accent: var(--s-color-purple) !default;
+
+$dark: var(--s-color-text-dark) !default;
+
+$positive: var(--s-color-green) !default;
+$negative: var(--s-color-red) !default;
+$info: var(--s-color-blue-light) !default;
+$warning: var(--s-color-orange) !default;
+
+$separator-color: var(--s-color-border) !default;
+
+$red: var(--s-color-red) !default;
+$purple: var(--s-color-purple) !default;
+$blue: var(--s-color-blue) !default;
+$green: var(--s-color-green) !default;
+$orange: var(--s-color-orange) !default;
+
+$typography-font-family: Helvetica, Arial, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif !default;
+
+$button-border-radius: 4px !default;
+
+$input-text-color: var(--s-color-text) !default;
+$input-label-color: var(--s-color-text-light) !default;
+
+/* ------------------------------
+Custom */
+$field-min-height: 40px;

@@ -65,6 +65,8 @@ export default defineComponent({
                     type: 'info',
                     position: 'top',
                 })
+                // 刷新页面 并重定向到首页
+                window.location.reload()
                 close()
             } catch (error) {
                 //

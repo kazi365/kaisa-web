@@ -1,6 +1,7 @@
 // @ts-ignore
 import type { UseFetchOptions } from 'nuxt/dist/app'
 import { useNotify } from '@/composables/use-notify/useNotify'
+import {COOKIE_KEY_MAP, getCookieValue} from "~utils/cookier";
 
 const { notify } = useNotify()
 
@@ -23,6 +24,12 @@ export async function commonRequest<R>(
     try {
         // baseURL
         config.baseURL ||= runtimeConfig.public.NUXT_API_BASE_URL
+        // headers
+        config.headers ||= {}
+        config.headers['Content-Type'] ||= 'application/json'
+        // Token
+        const token = getCookieValue(COOKIE_KEY_MAP.TOKEN)
+        token && (config.headers['Authorization'] = `${token}`)
 
         const res = await useFetch(url, {
             ...config,

@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useWindowScroll, useWindowSize } from '@vueuse/core'
 import type { TMenu } from '~types/menu'
 import { $loginDialog} from '@/components/business/login-dialog'
+import {getCookieValue, getUserInfoByToken} from "~utils/cookier";
 
 const route = useRoute()
 
@@ -23,6 +24,21 @@ const menus = ref<TMenu[]>([
 const doLogin = () => {
     $loginDialog.create()
 }
+
+const username = ref(null)
+
+onMounted(() => {
+    // 先获取token 再进行页面渲染
+    const user = getUserInfoByToken(getCookieValue('Token'))
+    if (user) {
+        username.value = user.username
+    }
+})
+
+const doLogout = () => {
+    document.cookie = 'Token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+    username.value = null
+}
 </script>
 
 <template>
@@ -42,9 +58,30 @@ const doLogin = () => {
                 />
                 <NuxtLink class="header-logo" to="/" />
             </div>
-            <div class="header__right">
+            <div v-if="!username"  class="header__right">
                 <button class="btn btn-primary" @click="doLogin">登录</button>
             </div>
+            <q-btn-dropdown
+                    v-else
+                    class="header__right text-black"
+                    flat
+                    no-caps
+                    square
+            >
+                <template #label>
+                    <div class="i-mdi-account-cowboy-hat text-2xl" />
+                </template>
+                <q-list dense>
+                    <q-item class="border-bottom">
+                        <q-item-section>
+                            {{ username }}
+                        </q-item-section>
+                    </q-item>
+                    <q-item v-close-popup="1" clickable @click="doLogout">
+                        <q-item-section>登出</q-item-section>
+                    </q-item>
+                </q-list>
+            </q-btn-dropdown>
             <div class="header-content justify-between">
                 <nav class="navbar">
                     <template v-if="!hasAside">

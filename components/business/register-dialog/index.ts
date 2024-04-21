@@ -6,23 +6,23 @@ const dialogMapStore = new Map<
     string, { app: App<Element>, instRef: InstanceType<typeof RegisterDialog> }
 >()
 
-export const $loginDialog = {
+export const $registerDialog = {
     create() {
         const app = createApp(RegisterDialog)
         const mountEl = document.createElement('div')
         document.body.appendChild(mountEl)
         const instRef = app.mount(mountEl) as InstanceType<typeof RegisterDialog>
-        dialogMapStore.set('contact', { app, instRef })
+        dialogMapStore.set('register', { app, instRef })
         nextTick(() => {
             instRef.open()
         })
         return instRef;
     },
     unmount() {
-        const dialog = dialogMapStore.get('login')
+        const dialog = dialogMapStore.get('register')
         if (!dialog) return;
         dialog.app.unmount()
         document.body.removeChild(dialog.app._container!)
-        dialogMapStore.delete('contact')
+        dialogMapStore.delete('register')
     },
 }

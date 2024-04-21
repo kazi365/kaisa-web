@@ -9,6 +9,7 @@ export const COOKIE_KEY_MAP = {
     TOKEN: 'Token',
     ERROR: 'error',
 }
+
 export function getCookieValue(name: string): string {
     if (!name) {
         console.warn(`getCookieValue: 'name' isn't found`);
@@ -35,4 +36,13 @@ export function setCookie(name: string, value: string, options?: setCookieOption
     maxAge && strs.push(`; max-age=${maxAge}`);
     options?.expires && strs.push(`; expires=${new Date(options.expires).toUTCString()}`);
     document.cookie = strs.join('')
+}
+
+export function getUserInfoByToken(token: string) {
+    if (!token) return;
+    const payloadCipher = /^\w+\.(\w+)\..+$/.exec(token)?.[1]
+    if (!payloadCipher) return;
+    const payloadPlain = window.atob(payloadCipher)
+    const newUserInfo: any = JSON.parse(payloadPlain || '{}')
+    return newUserInfo;
 }
