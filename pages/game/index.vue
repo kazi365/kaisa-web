@@ -2,8 +2,10 @@
 import {getGameList, subscribeGame, unsubscribeGame} from "@/src/api/game";
 
 import { useNotify } from '@/composables/use-notify/useNotify'
+import {getVsTeamList} from "@/src/api/team";
 
 const { notify } = useNotify()
+const router = useRouter()
 
 const columns = [
     { name: 'gameName', align: 'left', label: '赛事名称', type: '', },
@@ -127,11 +129,24 @@ const subscribe = () => {
 const medium = ref(false)
 const detailRow = ref<any>({})
 
-const detail = (row: any) => {
+const vsTeamA = ref<any>({})
+const vsTeamB = ref<any>({})
+
+const detail = async (row: any) => {
+
+    const { obj } : any = await getVsTeamList({
+        gameId: row.id
+    })
+    vsTeamA.value = obj.at(0)
+    vsTeamB.value = obj.at(1)
+
     medium.value = true
     detailRow.value = row
 }
 
+const toTeamPage = (vsTeam: any) => {
+    router.push({name: 'team', query: { teamName: vsTeam.name, type: vsTeam.type } })
+}
 </script>
 
 <template>
@@ -192,6 +207,20 @@ const detail = (row: any) => {
                         </div>
                     </div>
 
+                    <div class="mb-4">
+                        <div class="text-xl mt-8 mb-2">队伍信息</div>
+                        <q-separator />
+                        <div class="flex justify-between items-center mt-4 ">
+                            <div >
+                                <a class="text-xl" @click="toTeamPage(vsTeamA)">{{ vsTeamA.name }}: {{ vsTeamA.score }}</a>
+                            </div>
+                            <div class="text-2xl">VS</div>
+                            <div>
+                                <a class="text-xl" @click="toTeamPage(vsTeamB)">{{ vsTeamB.name }}: {{ vsTeamB.score }}</a>
+                            </div>
+                        </div>
+
+                    </div>
                 </q-card-section>
             </q-card>
         </q-dialog>

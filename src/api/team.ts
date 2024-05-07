@@ -1,9 +1,9 @@
-import { commonPostJson } from '@/src/http'
+import {commonGet, commonPostJson} from '@/src/http'
 import type {TPagination} from "~types/pagination";
 
 export function getTeamList(
         data: {
-            // teamName: string,
+            teamName: string,
             type: string,
             country: string,
             pageParam: TPagination,
@@ -19,4 +19,12 @@ export function getTeamList(
             }[],
             pageParam: TPagination
         }}>('/api/v1/team/getTeamList', data, { cache: 'no-cache' });
+}
+
+export function getVsTeamList(
+        params: {
+            gameId: number
+        }
+) {
+    return commonGet<{}>('/api/v1/team/getVsTeam', params);
 }

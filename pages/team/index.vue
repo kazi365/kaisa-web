@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import {getTeamList} from "@/src/api/team";
+import {getAthleteListByTeamId} from "@/src/api/athlete";
+
+const { query } = useRoute()
+const router = useRouter()
+
 
 const columns = [
     { name: 'teamName', align: 'left', label: '队伍名称', field: 'name', sortable: true },
     { name: 'type', align: 'left', label: '类型', field: 'type', sortable: true },
     { name: 'country', align: 'left', label: '国家', field: 'country', sortable: true },
     { name: 'score', align: 'left', label: '得分', field: 'score', sortable: true },
+    { name: 'operation', align: 'left', label: '操作', type: '', },
 ]
 
 const rows = ref<any>([])
@@ -20,6 +26,7 @@ const tablePagination = ref({
 const tableLoading = ref(false)
 
 const searchForm = ref({
+    name: '',
     country: '',
     type: ''
 })
@@ -46,7 +53,7 @@ const getTeamListData = async () => {
     tableLoading.value = true
     const { obj } = await getTeamList(
             {
-                // teamName: searchForm.value.name,
+                teamName: searchForm.value.name,
                 type: searchForm.value.type,
                 country: searchForm.value.country,
                 pageParam: {
@@ -59,14 +66,87 @@ const getTeamListData = async () => {
     rows.value = obj.pageData
     tablePagination.value.rowsNumber = obj.pageParam.total
     tableLoading.value = false
+    searchForm.value.name = ''
+}
+
+const medium = ref(false)
+const detailRow = ref<any>({})
+
+const athletes = ref([])
+
+const detail = async (row: any) => {
+
+    const { obj } : any = await getAthleteListByTeamId({
+        teamId: row.id
+    })
+
+    athletes.value = obj
+    console.log(obj)
+    medium.value = true
+    detailRow.value = row
+}
+
+if(query) {
+    searchForm.value.name = query.teamName
+    if(!searchForm.value.type) {
+        searchForm.value.type = query.type
+    }
 }
 
 getTeamListData()
+
+const toAthletePage = (athlete: any) => {
+    router.push({name: 'athlete', query: { athleteName: athlete.name, type: athlete.type }} )
+}
 
 </script>
 
 <template>
     <article class="game">
+        <q-dialog
+                v-model="medium"
+                class="dialog-medium"
+        >
+            <q-card class="dialog-medium-card" style="width: 700px; max-width: 80vw; ">
+                <q-card-section>
+                    <div class="text-h4">队伍详情</div>
+                </q-card-section>
+
+                <q-card-section class="q-pt-none">
+                    <div>
+                        <div class="text-xl mb-2">队伍信息</div>
+                        <q-separator />
+                        <div class="mt-4" id="dialog-item">
+                            <span class="">队伍名称：</span>
+                            <span class="">{{ detailRow.teamName }}</span>
+                        </div>
+                        <div class="" id="dialog-item">
+                            <span class="">队伍国家：</span>
+                            <span  class="detail-content-item-content">{{ detailRow.country }}</span>
+                        </div>
+                        <div class="" id="dialog-item">
+                            <span class="">队伍类型：</span>
+                            <span  class="">{{ detailRow.type }}</span>
+                        </div>
+                        <div class="" id="dialog-item">
+                            <span class="">队伍得分：</span>
+                            <span  class="">{{ detailRow.score }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="text-xl mt-8 mb-2">队伍成员信息</div>
+                        <q-separator />
+                        <div v-for="item in athletes">
+                            <div  id="dialog-item">
+                                <span class="">队员：</span>
+                                <a  class="ml-4" @click="toAthletePage(item)">{{ item.name }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </q-card-section>
+            </q-card>
+        </q-dialog>
         <div class="banner">
             <div class="news-card__img">
                 <img src="@/assets/imgs/news/news_bg.png" alt="news" />
@@ -140,7 +220,9 @@ getTeamListData()
                                             padding="sm"
                                             flat
                                             color="primary"
-                                            label="查看" >
+                                            label="查看详情"
+                                            @click="detail(props.row)"
+                                    >
                                     </q-btn>
                                 </q-td>
                             </template>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import {getTeamList} from "@/src/api/team";
 import {getAthleteList} from "@/src/api/athlete";
+
+const { query } = useRoute()
+
 
 const columns = [
     { name: 'name', align: 'left', label: '运动员名称', type: '', },
@@ -40,6 +42,7 @@ const tableLoading = ref(false)
 
 const getAthleteListData = async () => {
     tableLoading.value = true
+
     const { obj } = await getAthleteList(
             {
                 name: searchForm.value.name,
@@ -61,6 +64,11 @@ const onRequest = (props: any) => {
     tablePagination.value.page = props.pagination.page
     tablePagination.value.rowsPerPage = props.pagination.rowsPerPage
     getAthleteListData()
+}
+
+if(query) {
+    searchForm.value.name = query.athleteName
+    searchForm.value.type = query.type
 }
 
 getAthleteListData()
